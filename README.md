@@ -9,40 +9,44 @@ ACS kubernetes clusrter with one master and preferably two or more agent nodes
 ### Steps
 - Designate one node for storage through kubectl label command 
  ```
- $kubectl label pods <Node agent-0> type=store
+ kubectl label pods <Node agent-0> type=store
  ```
 - ssh to the storage node
   - make directory export with
   ```
-  $mkdir -p /export
+  mkdir -p /export
   ```
 - add "/export" to list of directories eligible for nfs mount with both read and write privileges
 - ssh to all other nodes and mount "/export" directory with command
 ```
-$mkdir -p /export
-$sudo mount <Node agent-0>:/export /export
+mkdir -p /export
+sudo mount <Node agent-0>:/export /export
+```
+- expose required pods(services) with kubectl expose
+```
+expose pod galaxy-postgres
 ```
 - create galxy webserver with command
 ```
-$kubectl create -f galaxy-web.yaml
+kubectl create -f galaxy-web.yaml
 ```
 - ssh to storage node 
 ```
-$cd /export
-$chmod 777 -R * 
+cd /export
+chmod 777 -R * 
 ```
 #### Setup Htcondor
 - create galaxy-htcondor with
 ```
-$kubectl create -f galaxy-htcondor.yaml
+kubectl create -f galaxy-htcondor.yaml
 ```
 - expose service using
 ```
-$kubectl expose pod galaxy-htcondor
+kubectl expose pod galaxy-htcondor
 ```
 - create htcondor-executor and htcondor-executor-big with
 ```
-$kubectl create -f galaxy-htcondor-executor.yaml -f galaxy-htcondor-executor-big
+kubectl create -f galaxy-htcondor-executor.yaml -f galaxy-htcondor-executor-big
 ```
 - get shell to galaxy-htcondor pod 
   - edit etc/hosts
