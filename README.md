@@ -82,5 +82,5 @@ ACS kubernetes clusrter with one master and preferably two or more agent nodes
   - add 127.0.0.1   galaxy-htcondor
   - restart condor with 
   ```
-    condor_restart
+    [root@galaxy-htcondor]:condor_restart
   ```
