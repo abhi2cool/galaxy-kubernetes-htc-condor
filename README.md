@@ -2,12 +2,12 @@
 ## This is an attempt to replicate Galaxy docker swarm/compose implementation on kubernetes Deployed over ACS
 ### Pre-requisites
 ACS kubernetes clusrter with one master and preferably two or more agent nodes
-- The following links shall help cluster creation and management
+- The following links shall help with cluster creation and management
   - Deploy Kubernetes cluster for Linux containers
     - https://docs.microsoft.com/en-us/azure/container-service/kubernetes/container-service-kubernetes-walkthrough
   - Using the Kubernetes web UI with Azure Container Service
     - https://docs.microsoft.com/en-us/azure/container-service/kubernetes/container-service-kubernetes-ui
-Get the node info with 
+- Get the node info with 
 ```
 [localhost]: kubectl get nodes
 ```
@@ -29,7 +29,7 @@ Get the node info with
   ```
   - make directory export with
   ```
- [Node agent-0]: mkdir -p /export
+  [Node agent-0]: mkdir -p /export
   ```
     - add "/export" to list of directories eligible for nfs mount with both read and write privileges
     - You can configure the directories to be exported by adding them to the /etc/exports file. For example:
