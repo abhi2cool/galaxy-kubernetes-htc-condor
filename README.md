@@ -19,7 +19,7 @@ ACS kubernetes clusrter with one master and preferably two or more agent nodes
 ### Steps
 - Designate one node for storage through kubectl label command 
  ```
- [localhost]:kubectl label pods <Node agent-0> type=store
+ [localhost]:kubectl label nodes <Node agent-0> type=store
  ```
 - ssh to the storage node
   - To ssh to any node, first ssh to master node with the IP available on the web portal (create user and add password to all nodes through the portal, makes things easier :P)
