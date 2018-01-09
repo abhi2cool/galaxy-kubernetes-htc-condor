@@ -32,13 +32,20 @@ ACS kubernetes clusrter with one master and preferably two or more agent nodes
   [Node agent-0]: mkdir -p /export
   [Node agent-0]: chown nobody:nogroup /export
   ```
-  
+ -install NFS server 
+ ```
+ sudo apt install nfs-kernel-server
+ ```
     - add "/export" to list of directories eligible for nfs mount with both read and write privileges
     - You can configure the directories to be exported by adding them to the /etc/exports file. For example:
     ```
     /ubuntu  *(ro,sync,no_root_squash)
     /export    *(rw,sync,no_root_squash)
     ```
+ - start service with
+ ```
+ sudo systemctl start nfs-kernel-server.service
+ ```
 - ssh to all other nodes
 ```
 [Node any]:-# ssh username@Node agent-(all except 0)
