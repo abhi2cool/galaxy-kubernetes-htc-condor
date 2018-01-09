@@ -67,14 +67,14 @@ helm install galaxy
   - add 127.0.0.1   galaxy-htcondor
 - get shell to galaxy-htcondor-executor container
 ```
-[localhost]:kubectl exec -it galaxy-htcondor -- /bin/bash
+[localhost]:kubectl exec -it galaxy-htcondor-executor -- /bin/bash
 ```
   - edit file /etc/hosts
   ```
   [root@galaxy-htcondor-executor]: vi /etc/hosts
   ```
   - add 127.0.0.1   galaxy-htcondor-executor 
-- get shell to galaxy-htcondor container
+- get shell to galaxy container
 ```
 [localhost]:kubectl exec -it galaxy --container=galaxy  -- /bin/bash
 ```
