@@ -30,7 +30,9 @@ ACS kubernetes clusrter with one master and preferably two or more agent nodes
   - make directory export with
   ```
   [Node agent-0]: mkdir -p /export
+  chown nobody:nogroup /export
   ```
+  
     - add "/export" to list of directories eligible for nfs mount with both read and write privileges
     - You can configure the directories to be exported by adding them to the /etc/exports file. For example:
     ```
