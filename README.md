@@ -55,6 +55,11 @@ helm install galaxy
 [Node agent-0]: chmod 777 -R * 
 ```
   - this step needs to be done in order to get rid of the permission denied error
+  - check if galaxy is running with
+  ```
+  kubectl port-forward galaxy 8080:80
+  ```
+  - browse to localhost:8080
 
 #### Setup Htcondor
 
