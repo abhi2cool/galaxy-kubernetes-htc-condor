@@ -43,13 +43,9 @@ ACS kubernetes clusrter with one master and preferably two or more agent nodes
 [Node agent-(all except 0)]: mkdir -p /export
 [Node agent-(all except 0)]: sudo mount <Node agent-0>:/export /export
 ```
-- expose required pods(services) with kubectl expose
+- Install helm chart with
 ```
-[localhost]: kubectl expose pod galaxy-postgres
-```
-- create galxy webserver with command
-```
-[localhost]: kubectl create -f galaxy-web.yaml
+helm install galaxy
 ```
 - ssh to storage node using same steps above 
 ```
@@ -59,18 +55,7 @@ ACS kubernetes clusrter with one master and preferably two or more agent nodes
   - this step needs to be done in order to get rid of the permission denied error
 
 #### Setup Htcondor
-- create galaxy-htcondor with
-```
-[localhost]: kubectl create -f galaxy-htcondor.yaml
-```
-- expose service using
-```
-[localhost]: kubectl expose pod galaxy-htcondor
-```
-- create htcondor-executor and htcondor-executor-big with
-```
-[localhost]: kubectl create -f galaxy-htcondor-executor.yaml -f galaxy-htcondor-executor-big.yaml
-```
+
 - get shell to galaxy-htcondor container
 ```
 [localhost]:kubectl exec -it galaxy-htcondor -- /bin/bash
@@ -80,7 +65,31 @@ ACS kubernetes clusrter with one master and preferably two or more agent nodes
   [root@galaxy-htcondor]: vi /etc/hosts
   ```
   - add 127.0.0.1   galaxy-htcondor
+- get shell to galaxy-htcondor-executor container
+```
+[localhost]:kubectl exec -it galaxy-htcondor -- /bin/bash
+```
+  - edit file /etc/hosts
+  ```
+  [root@galaxy-htcondor-executor]: vi /etc/hosts
+  ```
+  - add 127.0.0.1   galaxy-htcondor-executor 
+- get shell to galaxy-htcondor container
+```
+[localhost]:kubectl exec -it galaxy --container=galaxy  -- /bin/bash
+```
+  - edit file /etc/condor/condor_config.local
+  ```
+  [root@galaxy-htcondor]: vi /etc/condor/condor_config.local
+  ```
+  - add the following lines
+  ```
+  HOSTALLOW_READ = *
+  HOSTALLOW_WRITE = *
+  HOSTALLOW_NEGOTIATOR = *
+  HOSTALLOW_ADMINISTRATOR = *
+  ```
   - restart condor with 
   ```
-    [root@galaxy-htcondor]:condor_restart
+    [root@galaxy]:condor_restart
   ```
