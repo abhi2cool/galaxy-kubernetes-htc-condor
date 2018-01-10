@@ -54,7 +54,7 @@ ACS kubernetes clusrter with one master and preferably two or more agent nodes
 ```
 - Install helm chart with
 ```
-helm install galaxy
+[localhost]: helm install galaxy
 ```
 - ssh to storage node using same steps above 
 ```
@@ -64,7 +64,7 @@ helm install galaxy
   - this step needs to be done in order to get rid of the permission denied error
   - check if galaxy is running with
   ```
-  kubectl port-forward galaxy 8080:80
+  [localhost]: kubectl port-forward galaxy 8080:80
   ```
   - browse to localhost:8080
 
