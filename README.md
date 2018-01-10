@@ -44,7 +44,7 @@ ACS kubernetes clusrter with one master and preferably two or more agent nodes
     ```
  - start service with
  ```
- sudo systemctl start nfs-kernel-server.service
+ [Node agent-0]: sudo systemctl start nfs-kernel-server.service
  ```
 - ssh to all other nodes
 ```
