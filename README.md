@@ -34,7 +34,7 @@ ACS kubernetes clusrter with one master and preferably two or more agent nodes
   ```
  -install NFS server 
  ```
- sudo apt install nfs-kernel-server
+ [Node agent-0]: sudo apt install nfs-kernel-server
  ```
     - add "/export" to list of directories eligible for nfs mount with both read and write privileges
     - You can configure the directories to be exported by adding them to the /etc/exports file. For example:
