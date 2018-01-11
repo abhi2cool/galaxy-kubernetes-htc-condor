@@ -31,9 +31,9 @@ ACS kubernetes cluster with one master and preferably two or more agent nodes
  ```
 - ssh to the storage node
   - To ssh to any node, first ssh to master node with the IP available on the azure portal (create user and add password to all nodes through the azure portal, makes things easier :P) then ssh to any desired node with
-  ```
-  [Node master-0]:-# ssh username@Node agent-0
-  ```
+    ```
+    [Node master-0]:-# ssh username@Node agent-0
+    ```
   
 - make directory export with
   ```
@@ -41,17 +41,17 @@ ACS kubernetes cluster with one master and preferably two or more agent nodes
   [Node agent-0]: chown nobody:nogroup /export
   ```
   
- -install NFS server 
- ```
- [Node agent-0]: sudo apt install nfs-kernel-server
- ```
+- install NFS server 
+  ```
+  [Node agent-0]: sudo apt install nfs-kernel-server
+  ```
  
 - add "/export" to list of directories eligible for nfs mount with both read and write privileges
     - You can configure the directories to be exported by adding them to the /etc/exports file. For example:
-    ```
-    /ubuntu  *(ro,sync,no_root_squash)
-    /export  *(rw,sync,no_root_squash)
-    ```
+      ```
+      /ubuntu  *(ro,sync,no_root_squash)
+      /export  *(rw,sync,no_root_squash)
+      ```
     
 - start service with
   ```
