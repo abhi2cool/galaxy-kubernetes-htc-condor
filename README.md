@@ -52,6 +52,11 @@ ACS kubernetes cluster with one master and preferably two or more agent nodes
       /ubuntu  *(ro,sync,no_root_squash)
       /export  *(rw,sync,no_root_squash)
       ```
+- edit /etc/hosts.allow
+  - add
+  ```
+  ALL: ALL
+  ```
     
 - start service with
   ```
