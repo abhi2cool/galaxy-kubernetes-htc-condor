@@ -50,7 +50,7 @@ Congrats!  We're on our way.
 
 Once you've installed Azure CLI, open up a terminal window and create a resource group and the Azure region to create it in.
 ```
-rc-cola$ az group create --name myResourceGroup --location westeurope
+rc-cola$ az group create --name rcAnswerAlsCluster --location westus2
 ```
 (If you don't know which region to use or its shortname, get a list of them with this command (note the whizzy use of the '--output table' option to make the output more readable.)
 ```
@@ -58,7 +58,7 @@ rc-cola$ az account list-locations --output table
 ```
 After the resource group is created, create a Kubernetes cluster within it.
 ```
-rc-cola$ az acs create --orchestrator-type kubernetes --resource-group myResourceGroup --name myK8sCluster --generate-ssh-keys
+rc-cola$ az acs create --orchestrator-type kubernetes --resource-group rcAnswerAlsCluster --name rcAlsK8s --generate-ssh-keys
 ```
 
 ## Install kubectl
@@ -97,7 +97,7 @@ Merged "rcalsk8s-rcansweralsclust-7904d7mgmt" as current context in /Users/rc/.k
 ### Get node info from the kubectl CLI
 We've created our cluster and set our local context.  Now let's get some details about what we've created.  Run this command in your Terminal
 ```
-az acs kubernetes get-credentials rc-cola:.azure rc$ kubectl get nodes
+rc-cola$ kubectl get nodes
 NAME                        STATUS    ROLES     AGE       VERSION
 k8s-agentpool0-12790836-0   Ready     agent     2h        v1.7.9
 k8s-agentpool0-12790836-1   Ready     agent     2h        v1.7.9
@@ -105,7 +105,7 @@ k8s-agentpool0-12790836-2   Ready     agent     2h        v1.7.9
 k8s-master-12790836-0       Ready     master    2h        v1.7.9
 ```
 
-Remember those dudes.  We're going to need to ssh into *all* of them (and into the agent nodes _through_ the master) to do stuff like mount NFS volumes and whatnot, so keep them handy :).
+Remember those dudes.  We're going to need to create accounts and ssh into *all* of them (and into the agent nodes _through_ the master) to do stuff like mount NFS volumes and whatnot, so keep them handy :).
 
 ### Access the kubernetes web UI
 The kubernetes web UI is an excellent tool to configure scaling options manually. To access it, run this command from your Terminal command prompt:
@@ -134,24 +134,30 @@ From your node listing above, select the '-0' _agent_ node as a storage node.  R
 
  In your browser, head over to the [Azure Portal](https://portal.azure.com) and log in using the same credentials you used to create your subscription.
 
- When you get there, navigate to your Kubernetes agents. The most direct way is by searching (start entering your cluster name in the search box and it should appear via autocomplete)
- ![finding your k8s cluster in the Azure Portal](https://github.com/rc-ms/galaxy-kubernetes-htcondor-azure/blob/master/assets/find-your-cluster.png?raw=true)
+ After logging in and arriving at your dashboard, navigate to your Kubernetes agents. The most direct way is by searching (start entering your agent name (i.e. 'k8s-agentpool...') in the search box and it should appear via autocomplete)
 
-Once you've selected your agent, scroll down the left nav until you see the "__Reset Password__" entry
+Once you've selected your agent, scroll down the left nav until you see the "__Reset password__" entry. Select that and, even though it says _Reset_, we're going to _create_ a new account.
+
 ![screenshot of adding user account to agent VM](https://github.com/rc-ms/galaxy-kubernetes-htcondor-azure/blob/master/assets/add-accounts-to-vms.png?raw=true)
 
 You can add an account that uses a username / password combination or SSH key. We'll use a username / password combination this time.
 
-Repeaat this process until this user account on all the node VMs, including the master.
+Repeaat this process until a new user account has been created on all the node VMs, including the master.
 
 ### Configure storage node as an NFS Server
- This is where it's easy to get lost. To access the agent nodes to configure them, you first have to ssh to the master node and then ssh from there to the agent nodes.
+Okay. Now we're going to put on our big boy pants and go SSH tunneling. This is where it's easy to get lost so pay close attention to your cursor and your context. 
 
-  - then ssh to any desired node with
-  ```
-  [Node master-0]:-# ssh username@Node agent-0
-  ```
-  - make directory export with
+To access the agent nodes to configure them, you first have to ssh to the master node and then SSH from there to the agent nodes. Onward!
+
+First, let's SSH to the master VM. 
+
+```
+rc-cola$ ssh rc@k8s-master-12790836-0
+```
+The first hop on our journey is to the '-0' agent node we made a storage node back in the day. Let's ssh there from our master VM.
+
+
+- make directory export with
   ```
   [Node agent-0]: mkdir -p /export
   [Node agent-0]: chown nobody:nogroup /export
