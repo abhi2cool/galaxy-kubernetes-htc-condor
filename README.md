@@ -20,11 +20,13 @@ This implementation, while less purdy, _performs_ and easily scales to multiple 
 While fundamentally a cloud-neutral implementation based on Kubernetes and HTCondor, this readme describes steps for Azure.
 
 ## Prerequisites
-### An [Azure account and subscription](https://azure.microsoft.com) with [Azure Portal access](https://azure.microsoft.com/en-us/features/azure-portal/)
-### [Azure CLI](https://github.com/Azure/azure-cli) installed
-#### Windows
+* An [Azure account and subscription](https://azure.microsoft.com) with [Azure Portal access](https://azure.microsoft.com/en-us/features/azure-portal/)
+* [Azure CLI](https://github.com/Azure/azure-cli) installed on the computer you'll be working from
+
+Azure CLI is available for multiple platforms.  If you don't see an option below that works for you, [check the docs](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest).
+### Windows
 [Download and run the MSI installer package](https://aka.ms/InstallAzureCliWindows).
-#### Mac
+### Mac
 Use Homebrew.  From Terminal, run the following:
 ```
 brew update
@@ -33,11 +35,17 @@ brew install azure-cli
 ### Linux
 [Read the docs](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest)
 
+### Verify install
 Once you've successfully installed Azure CLI, open up your terminal and login to Azure with it
 ```
 az login
 ```
-
+You should be prompted to log in from your system's default browser.
+```
+rc-cola:.azure rc$ az login
+To sign in, use a web browser to open the page https://aka.ms/devicelogin and enter the code 'YOUR_CODE' to authenticate.
+```
+Congrats!  We're on our way.
 ## Create and connect to your cluster  
 
 Once you've installed Azure CLI, open up a terminal window and create a resource group and the Azure region to create it in.
@@ -53,8 +61,30 @@ After the resource group is created, create a Kubernetes cluster within it.
 az acs create --orchestrator-type kubernetes --resource-group myResourceGroup --name myK8sCluster --generate-ssh-keys
 ```
 
-## Configure your cluster
+## Install kubectl
 
+To manage our Kubernetes cluster, we need to [install kubectrl](https://kubernetes.io/docs/tasks/tools/install-kubectl/).
+### Windows
+On Windows you can use the Chocolatey package manager and install with:
+```
+choco install kubernetes-cli
+```
+### Mac
+Use Homebrew.  From Terminal, run the following:
+```
+brew install kubectl
+```
+### Linux
+kubectl is available as a snap application.
+If you are on Ubuntu or one of other Linux distributions that support snap package manager, you can install with:
+```
+sudo snap install kubectl --classic
+```
+### Verify your install
+```
+kubectl version
+```
+## Manage your cluster
 - Get the node info with 
 ```
 [localhost]: kubectl get nodes
