@@ -107,13 +107,31 @@ Proxy running on 127.0.0.1:8001/ui
 Press CTRL+C to close the tunnel...
 Starting to serve on 127.0.0.1:8001
 ```  
-## Designate one of the agents as a storage node
- 
+You should see something like this.
+![kubernetes web ui dashboard](https://raw.githubusercontent.com/rc-ms/galaxy-kubernetes-htcondor-azure/master/assets/kubernetes-web-ui.png)
+
+## Set up an agent as Galaxy storage node and NFS server
+Now that we've built and accessed our shiny new cluster, we can start getting it ready for our Galaxy installation.
+
+### Set up the '-0' agent as a storage node
+From your node listing above, select the '-0' _agent_ node as a storage node.  Run the following command in your Terminal window
  ```
  rc-cola$ kubectl label nodes k8s-agent-e0c9b167-0 type=store
  ```
-- ssh to the storage node
-  - To ssh to any node, first ssh to master node with the IP available on the web portal (create user and add password to all nodes through the portal, makes things easier :P)
+ ### Create a user account on all the nodes to enable SSH access
+ 
+ Before we can begin our node configuration dance, we have to create user accounts on all the nodes. For this we're going to use the Azure Portal.
+
+ In your browser, head over to the [Azure Portal](https://portal.azure.com) and log in using the same credentials you used to create your subscription.
+
+ When you get there, navigate to your Kubernetes cluster by browsing (select "**Resource Groups**" from left nav and then click into the resource group you created with the CLI ('rcAnswerAlsCluster' for this demo) or searching (start typing your cluster name in the search box and it should appear via autocomplete)
+ ![finding your k8s cluster in the Azure Portal](https://github.com/rc-ms/galaxy-kubernetes-htcondor-azure/blob/master/assets/find-your-cluster.png?raw=true)
+
+ 
+
+### Configure storage node as an NFS Server
+ This is where it's easy to get lost. To access the agent nodes to configure them, you first have to ssh to the master node and then ssh from there to the agent nodes.
+
   - then ssh to any desired node with
   ```
   [Node master-0]:-# ssh username@Node agent-0
@@ -159,7 +177,7 @@ Starting to serve on 127.0.0.1:8001
   ```
   - browse to localhost:8080
 
-#### Setup Htcondor
+## Set up HTCondor
 
 - get shell to galaxy-htcondor container
 ```
