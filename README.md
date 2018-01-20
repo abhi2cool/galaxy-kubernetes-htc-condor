@@ -52,9 +52,9 @@ Once you've installed Azure CLI, open up a terminal window and create a resource
 ```
 rc-cola$ az group create --name myResourceGroup --location westeurope
 ```
-(If you don't know which region to use or its shortname, get a list of them with this command.)
+(If you don't know which region to use or its shortname, get a list of them with this command (note the whizzy use of the '--output table' option to make the output more readable.)
 ```
-rc-cola$ az account list-locations
+rc-cola$ az account list-locations --output table
 ```
 After the resource group is created, create a Kubernetes cluster within it.
 ```
@@ -85,18 +85,27 @@ rc-cola$ sudo snap install kubectl --classic
 rc-cola$ kubectl version
 ```
 ## Access your k8s cluster
-Now that you've got kubectl installed, let's get some info about the cluster we just created
+Now that you've got kubectl installed, let's get some info about the cluster we just created.
+
+First, set up your local environment in the context of your newly-created cluster. Run this command in your Terminal.
+
+```
+az acs kubernetes get-credentials --resource-group=rcAnswerAlsCluster --name=rcAlsK8s
+Merged "rcalsk8s-rcansweralsclust-7904d7mgmt" as current context in /Users/rc/.kube/config
+```
 
 ### Get node info from the kubectl CLI
+We've created our cluster and set our local context.  Now let's get some details about what we've created.  Run this command in your Terminal
 ```
-rc-cola$ kubectl get nodes
-NAME                    STATUS    ROLES     AGE       VERSION
-k8s-agent-e0c9b167-0    Ready     agent     12d       v1.7.7
-k8s-agent-e0c9b167-1    Ready     agent     12d       v1.7.7
-k8s-agent-e0c9b167-2    Ready     agent     12d       v1.7.7
-k8s-master-e0c9b167-0   Ready     master    12d       v1.7.7
+az acs kubernetes get-credentials rc-cola:.azure rc$ kubectl get nodes
+NAME                        STATUS    ROLES     AGE       VERSION
+k8s-agentpool0-12790836-0   Ready     agent     2h        v1.7.9
+k8s-agentpool0-12790836-1   Ready     agent     2h        v1.7.9
+k8s-agentpool0-12790836-2   Ready     agent     2h        v1.7.9
+k8s-master-12790836-0       Ready     master    2h        v1.7.9
 ```
-Remember those names.  We're going to need to ssh into *all* of them (and into the agent nodes _through_ the master) to do stuff like mount NFS volumes and whatnot, so keep them handy :).
+
+Remember those dudes.  We're going to need to ssh into *all* of them (and into the agent nodes _through_ the master) to do stuff like mount NFS volumes and whatnot, so keep them handy :).
 
 ### Access the kubernetes web UI
 The kubernetes web UI is an excellent tool to configure scaling options manually. To access it, run this command from your Terminal command prompt:
@@ -114,9 +123,10 @@ You should see something like this.
 Now that we've built and accessed our shiny new cluster, we can start getting it ready for our Galaxy installation.
 
 ### Set up the '-0' agent as a storage node
-From your node listing above, select the '-0' _agent_ node as a storage node.  Run the following command in your Terminal window
+From your node listing above, select the '-0' _agent_ node as a storage node.  Run the following command in your Terminal window (make sure to replace the agent node with the ones from _your_ cluster :-) )
  ```
- rc-cola$ kubectl label nodes k8s-agent-e0c9b167-0 type=store
+ rc-cola$ kubectl label nodes k8s-agentpool0-12790836-0 type=store
+ node "k8s-agentpool0-12790836-0" labeled
  ```
  ### Create a user account on all the nodes to enable SSH access
  
@@ -124,10 +134,15 @@ From your node listing above, select the '-0' _agent_ node as a storage node.  R
 
  In your browser, head over to the [Azure Portal](https://portal.azure.com) and log in using the same credentials you used to create your subscription.
 
- When you get there, navigate to your Kubernetes cluster by browsing (select "**Resource Groups**" from left nav and then click into the resource group you created with the CLI ('rcAnswerAlsCluster' for this demo) or searching (start typing your cluster name in the search box and it should appear via autocomplete)
+ When you get there, navigate to your Kubernetes agents. The most direct way is by searching (start entering your cluster name in the search box and it should appear via autocomplete)
  ![finding your k8s cluster in the Azure Portal](https://github.com/rc-ms/galaxy-kubernetes-htcondor-azure/blob/master/assets/find-your-cluster.png?raw=true)
 
- 
+Once you've selected your agent, scroll down the left nav until you see the "__Reset Password__" entry
+![screenshot of adding user account to agent VM](https://github.com/rc-ms/galaxy-kubernetes-htcondor-azure/blob/master/assets/add-accounts-to-vms.png?raw=true)
+
+You can add an account that uses a username / password combination or SSH key. We'll use a username / password combination this time.
+
+Repeaat this process until this user account on all the node VMs, including the master.
 
 ### Configure storage node as an NFS Server
  This is where it's easy to get lost. To access the agent nodes to configure them, you first have to ssh to the master node and then ssh from there to the agent nodes.
