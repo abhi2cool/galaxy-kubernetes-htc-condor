@@ -29,7 +29,7 @@ Azure CLI is available for multiple platforms.  If you don't see an option below
 ### Mac
 Use Homebrew.  From Terminal, run the following:
 ```
-brew update
+rc-cola$ brew update
 brew install azure-cli
 ```
 ### Linux
@@ -38,11 +38,11 @@ brew install azure-cli
 ### Verify install
 Once you've successfully installed Azure CLI, open up your terminal and login to Azure with it
 ```
-az login
+rc-cola$ az login
 ```
 You should be prompted to log in from your system's default browser.
 ```
-rc-cola:.azure rc$ az login
+rc-cola$ az login
 To sign in, use a web browser to open the page https://aka.ms/devicelogin and enter the code 'YOUR_CODE' to authenticate.
 ```
 Congrats!  We're on our way.
@@ -50,15 +50,15 @@ Congrats!  We're on our way.
 
 Once you've installed Azure CLI, open up a terminal window and create a resource group and the Azure region to create it in.
 ```
-az group create --name myResourceGroup --location westeurope
+rc-cola$ az group create --name myResourceGroup --location westeurope
 ```
 (If you don't know which region to use or its shortname, get a list of them with this command.)
 ```
-az account list-locations
+rc-cola$ az account list-locations
 ```
 After the resource group is created, create a Kubernetes cluster within it.
 ```
-az acs create --orchestrator-type kubernetes --resource-group myResourceGroup --name myK8sCluster --generate-ssh-keys
+rc-cola$ az acs create --orchestrator-type kubernetes --resource-group myResourceGroup --name myK8sCluster --generate-ssh-keys
 ```
 
 ## Install kubectl
@@ -67,37 +67,50 @@ To manage our Kubernetes cluster, we need to [install kubectrl](https://kubernet
 ### Windows
 On Windows you can use the Chocolatey package manager and install with:
 ```
-choco install kubernetes-cli
+$ choco install kubernetes-cli
 ```
 ### Mac
 Use Homebrew.  From Terminal, run the following:
 ```
-brew install kubectl
+rc-cola$ brew install kubectl
 ```
 ### Linux
 kubectl is available as a snap application.
 If you are on Ubuntu or one of other Linux distributions that support snap package manager, you can install with:
 ```
-sudo snap install kubectl --classic
+rc-cola$ sudo snap install kubectl --classic
 ```
 ### Verify your install
 ```
-kubectl version
+rc-cola$ kubectl version
 ```
-## Manage your cluster
-- Get the node info with 
+## Access your k8s cluster
+Now that you've got kubectl installed, let's get some info about the cluster we just created
+
+### Get node info from the kubectl CLI
 ```
-[localhost]: kubectl get nodes
+rc-cola$ kubectl get nodes
+NAME                    STATUS    ROLES     AGE       VERSION
+k8s-agent-e0c9b167-0    Ready     agent     12d       v1.7.7
+k8s-agent-e0c9b167-1    Ready     agent     12d       v1.7.7
+k8s-agent-e0c9b167-2    Ready     agent     12d       v1.7.7
+k8s-master-e0c9b167-0   Ready     master    12d       v1.7.7
 ```
-- Let the nodes be 
-  - Node master-0 
-  - Node agent-0 
-  - Node agent-1 
-  
-### Steps
-- Designate one node for storage through kubectl label command 
+Remember those names.  We're going to need to ssh into *all* of them (and into the agent nodes _through_ the master) to do stuff like mount NFS volumes and whatnot, so keep them handy :).
+
+### Access the kubernetes web UI
+The kubernetes web UI is an excellent tool to configure scaling options manually. To access it, run this command from your Terminal command prompt:
+
+```
+rc-cola$ az acs kubernetes browse -g rcAnswerAlsCluster -n rcAlsK8s 
+Proxy running on 127.0.0.1:8001/ui
+Press CTRL+C to close the tunnel...
+Starting to serve on 127.0.0.1:8001
+```  
+## Designate one of the agents as a storage node
+ 
  ```
- [localhost]:kubectl label nodes <Node agent-0> type=store
+ rc-cola$ kubectl label nodes k8s-agent-e0c9b167-0 type=store
  ```
 - ssh to the storage node
   - To ssh to any node, first ssh to master node with the IP available on the web portal (create user and add password to all nodes through the portal, makes things easier :P)
