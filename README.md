@@ -149,49 +149,117 @@ Okay. Now we're going to put on our big boy pants and go SSH tunneling. This is 
 
 To access the agent nodes to configure them, you first have to ssh to the master node and then SSH from there to the agent nodes. Onward!
 
-First, let's SSH to the master VM. 
+First, let's SSH to the master VM. For this, we use the Public IP value we can grab from the portal.
+
+![screenshot of public ip of master agent node](https://github.com/rc-ms/galaxy-kubernetes-htcondor-azure/blob/master/assets/master-node-ip.png?raw=true)
 
 ```
-rc-cola$ ssh rc@k8s-master-12790836-0
+rc-cola$ ssh rc@my.master.ip.address
 ```
 The first hop on our journey is to the '-0' agent node we made a storage node back in the day. Let's ssh there from our master VM.
 
+```
+rc@masternode$ ssh rc@k8s-agentpool0-12790836-0
+```
 
-- make directory export with
+Congratulations!  Do you feel like you're in a game of CLI Frogger? 
+
+Okay, now that we're on the storage node, let's make an '/export' directory and give read/write permissions to it. 
+
+Before we can, though, we'll have to sudo su to get proper permissions. (Your sudo password is your SSH password.)
   ```
-  [Node agent-0]: mkdir -p /export
-  [Node agent-0]: chown nobody:nogroup /export
+ $ sudo su
+[sudo] password for rc: 
+root@k8s-agentpool0-12790836-0:/home/rc# mkdir /export
+root@k8s-agentpool0-12790836-0:/# chmod 777 -R /export
   ```
- -install NFS server 
+### Install NFS server
+The storage node will also, um, serve as an NFS server that the other agent nodes will access when running jobs. So let's install an NFS server. 
  ```
- [Node agent-0]: sudo apt install nfs-kernel-server
+ root@k8s-agentpool0-12790836-0:/home/rc# sudo apt install nfs-kernel-server
  ```
-    - add "/export" to list of directories eligible for nfs mount with both read and write privileges
-    - You can configure the directories to be exported by adding them to the /etc/exports file. For example:
-    ```
-    /ubuntu  *(ro,sync,no_root_squash)
-    /export    *(rw,sync,no_root_squash)
-    ```
- - start service with
- ```
- [Node agent-0]: sudo systemctl start nfs-kernel-server.service
- ```
-- ssh to all other nodes
+Now that we have an NFS server, we add the "/export" directory to a list of directories eligible for an NFS mount with both read and write privileges. We'll do it by adding an entry to the  /etc/exports file. 
 ```
-[Node any]:-# ssh username@Node agent-(all except 0)
-[Node agent-(all except 0)]: mkdir -p /export
-[Node agent-(all except 0)]: sudo mount <Node agent-0>:/export /export
+root@k8s-agentpool0-12790836-0:/home/rc# vi /etc/exports
 ```
-- Install helm chart with
+Once you're in the file, copy the lines below into it.
+```
+  /ubuntu  *(ro,sync,no_root_squash)
+  /export  *(rw,sync,no_root_squash)
+```
+One more file to modify: '/etc/hosts.allow'
+```
+root@k8s-agentpool0-12790836-0:/home/rc# vi /etc/hosts.allow 
+```
+Add the following line:
+```
+  ALL:ALL
+```
+(If you need some help with vi commands, here's a good [vi cheat sheet](https://ryanstutorials.net/linuxtutorial/cheatsheetvi.php).)
+ 
+Let's fire up the NFS service.
+
+ ```
+root@k8s-agentpool0-12790836-0:/home/rc# sudo systemctl start nfs-kernel-server.service
+ ```
+ Woohoo! Let's hightail it back to the master node
+ ```
+root@k8s-agentpool0-12790836-0:/home/rc# exit
+exit
+$ 
+ ```
+
+### Configure the remaining agent nodes
+For the remaining agent nodes, we'll also create an '/export' directory and then mount the '/export' directory of the storage node.
+
+```
+$ sudo su
+[sudo] password for rc: 
+root@k8s-agentpool0-12790836-1:/home/rc# mkdir /export
+root@k8s-agentpool0-12790836-1:/export# sudo mount k8s-agentpool0-12790836-0:/export /export
+```
+Repeat these same commands for all the remaining agent nodes in your cluster. When you're done updating the last agent node, back out of all your connections all the way to your localhost
+
+```
+$ exit
+Connection to k8s-agentpool0-12790836-2 closed.
+$ exit
+Connection to k8s-agentpool0-12790836-1 closed.
+$ exit
+Connection to k8s-agentpool0-12790836-0 closed.
+$ exit
+Connection to k8s-agentpool0-12790836-1 closed.
+$ exit
+Connection to k8s-agentpool0-12790836-0 closed.
+$ exit
+Connection to 52.151.29.14 closed.
+rc-cola:~
+```
+
+Well done.  Speaking of done, we're getting there. 
+
+## Install Galaxy via a Helm chart
+Now that our cluster and its nodes are configured globally, we're almost ready to intall and boot Galaxy.
+
+### But first, install Helm
+
+The first thing we need to do (see what I did there? _first_?) is intall Helm on our local laptop.
+
+#### Mac
+Good old homebrew!
+```
+rc-cola:~ rc$ brew install kubernetes-helm
+Updating Homebrew...
+```
+(Remember: we should be running this on our local computer, not the VMs in our cluster)
+#### Windows and Linux
+Sorry dudes. Looks like [it's a source install for you](https://docs.helm.sh/using_helm/#installing-helm).
+
+### Let's try to install Galaxy
+
+
 ```
 [localhost]: helm install galaxy
-```
-- ssh to storage node using same steps above 
-```
-[Node agent-0]: cd /export
-[Node agent-0]: chmod 777 -R * 
-```
-  - this step needs to be done in order to get rid of the permission denied error
   - check if galaxy is running with
   ```
   [localhost]: kubectl port-forward galaxy 8080:80
