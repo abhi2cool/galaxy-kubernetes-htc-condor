@@ -156,7 +156,7 @@ First, let's SSH to the master VM. For this, we use the Public IP value we can g
 ```
 rc-cola$ ssh rc@my.master.ip.address
 ```
-The first hop on our journey is to the '-0' agent node we made a storage node back in the day. Let's ssh there from our master VM.
+The first hop on our journey is to the '-0' agent node we made a storage node [back in the day](https://github.com/rc-ms/galaxy-kubernetes-htcondor-azure#get-node-info-from-the-kubectl-cli). Let's ssh there from our master VM.
 
 ```
 rc@masternode$ ssh rc@k8s-agentpool0-12790836-0
