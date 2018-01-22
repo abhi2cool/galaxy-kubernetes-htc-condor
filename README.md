@@ -99,9 +99,9 @@ We've created our cluster and set our local context.  Now let's get some details
 ```
 rc-cola$ kubectl get nodes
 NAME                        STATUS    ROLES     AGE       VERSION
-k8s-agentpool0-12790836-0   Ready     agent     2h        v1.7.9
-k8s-agentpool0-12790836-1   Ready     agent     2h        v1.7.9
-k8s-agentpool0-12790836-2   Ready     agent     2h        v1.7.9
+k8s-agent0-12790836-0   Ready     agent     2h        v1.7.9
+k8s-agent0-12790836-1   Ready     agent     2h        v1.7.9
+k8s-agent0-12790836-2   Ready     agent     2h        v1.7.9
 k8s-master-12790836-0       Ready     master    2h        v1.7.9
 ```
 
@@ -125,8 +125,8 @@ Now that we've built and accessed our shiny new cluster, we can start getting it
 ### Set up the '-0' agent as a storage node
 From your node listing above, select the '-0' _agent_ node as a storage node.  Run the following command in your Terminal window (make sure to replace the agent node with the ones from _your_ cluster :-) )
  ```
- rc-cola$ kubectl label nodes k8s-agentpool0-12790836-0 type=store
- node "k8s-agentpool0-12790836-0" labeled
+ rc-cola$ kubectl label nodes k8s-agent0-12790836-0 type=store
+ node "k8s-agent0-12790836-0" labeled
  ```
  ### Create a user account on all the nodes to enable SSH access
  
@@ -134,7 +134,7 @@ From your node listing above, select the '-0' _agent_ node as a storage node.  R
 
  In your browser, head over to the [Azure Portal](https://portal.azure.com) and log in using the same credentials you used to create your subscription.
 
- After logging in and arriving at your dashboard, navigate to your Kubernetes agents. The most direct way is by searching (start entering your agent name (i.e. 'k8s-agentpool...') in the search box and it should appear via autocomplete)
+ After logging in and arriving at your dashboard, navigate to your Kubernetes agents. The most direct way is by searching (start entering your agent name (i.e. 'k8s-agent...') in the search box and it should appear via autocomplete)
 
 Once you've selected your agent, scroll down the left nav until you see the "__Reset password__" entry. Select that and, even though it says _Reset_, we're going to _create_ a new account.
 
@@ -159,7 +159,7 @@ rc-cola$ ssh rc@my.master.ip.address
 The first hop on our journey is to the '-0' agent node we made a storage node [back in the day](https://github.com/rc-ms/galaxy-kubernetes-htcondor-azure#get-node-info-from-the-kubectl-cli). Let's ssh there from our master VM.
 
 ```
-rc@masternode$ ssh rc@k8s-agentpool0-12790836-0
+rc@masternode$ ssh rc@k8s-agent0-12790836-0
 ```
 
 Congratulations!  Do you feel like you're in a game of CLI Frogger? 
@@ -170,17 +170,17 @@ Before we can, though, we'll have to sudo su to get proper permissions. (Your su
   ```
  $ sudo su
 [sudo] password for rc: 
-root@k8s-agentpool0-12790836-0:/home/rc# mkdir /export
-root@k8s-agentpool0-12790836-0:/# chmod 777 -R /export
+root@k8s-agent0-12790836-0:/home/rc# mkdir /export
+root@k8s-agent0-12790836-0:/# chmod 777 -R /export
   ```
 ### Install NFS server
 The storage node will also, um, serve as an NFS server that the other agent nodes will access when running jobs. So let's install an NFS server. 
  ```
- root@k8s-agentpool0-12790836-0:/home/rc# sudo apt install nfs-kernel-server
+ root@k8s-agent0-12790836-0:/home/rc# sudo apt install nfs-kernel-server
  ```
 Now that we have an NFS server, we add the "/export" directory to a list of directories eligible for an NFS mount with both read and write privileges. We'll do it by adding an entry to the  /etc/exports file. 
 ```
-root@k8s-agentpool0-12790836-0:/home/rc# vi /etc/exports
+root@k8s-agent0-12790836-0:/home/rc# vi /etc/exports
 ```
 Once you're in the file, copy the lines below into it.
 ```
@@ -189,7 +189,7 @@ Once you're in the file, copy the lines below into it.
 ```
 One more file to modify: '/etc/hosts.allow'
 ```
-root@k8s-agentpool0-12790836-0:/home/rc# vi /etc/hosts.allow 
+root@k8s-agent0-12790836-0:/home/rc# vi /etc/hosts.allow 
 ```
 Add the following line:
 ```
@@ -200,11 +200,11 @@ Add the following line:
 Let's fire up the NFS service.
 
  ```
-root@k8s-agentpool0-12790836-0:/home/rc# sudo systemctl start nfs-kernel-server.service
+root@k8s-agent0-12790836-0:/home/rc# sudo systemctl start nfs-kernel-server.service
  ```
  Woohoo! Let's hightail it back to the master node
  ```
-root@k8s-agentpool0-12790836-0:/home/rc# exit
+root@k8s-agent0-12790836-0:/home/rc# exit
 exit
 $ 
  ```
@@ -215,24 +215,26 @@ For the remaining agent nodes, we'll also create an '/export' directory and then
 ```
 $ sudo su
 [sudo] password for rc: 
-root@k8s-agentpool0-12790836-1:/home/rc# mkdir /export
-root@k8s-agentpool0-12790836-1:/export# sudo mount k8s-agentpool0-12790836-0:/export /export
+root@k8s-agent0-12790836-1:/home/rc# mkdir /export
+root@k8s-agent0-12790836-1:/export# sudo mount k8s-agent0-12790836-0:/export /export
 ```
-Repeat these same commands for all the remaining agent nodes in your cluster. When you're done updating the last agent node, back out of all your connections all the way to your localhost
+Repeat these same commands for all the remaining agent nodes in your cluster. When you're done updating the last agent node, back out of all your connections all the way to your localhost. If you get 'permission denied' errors, head back over to the -0 NFS server node and try stopping and starting the service again.  
+
+Do not proceed until the mount is successful.
 
 ```
 $ exit
-Connection to k8s-agentpool0-12790836-2 closed.
+Connection to k8s-agent0-12790836-2 closed.
 $ exit
-Connection to k8s-agentpool0-12790836-1 closed.
+Connection to k8s-agent0-12790836-1 closed.
 $ exit
-Connection to k8s-agentpool0-12790836-0 closed.
+Connection to k8s-agent0-12790836-0 closed.
 $ exit
-Connection to k8s-agentpool0-12790836-1 closed.
+Connection to k8s-agent0-12790836-1 closed.
 $ exit
-Connection to k8s-agentpool0-12790836-0 closed.
+Connection to k8s-agent0-12790836-0 closed.
 $ exit
-Connection to 52.151.29.14 closed.
+Connection to my.master.node.ip closed.
 rc-cola:~
 ```
 
@@ -259,7 +261,45 @@ Sorry dudes. Looks like [it's a source install for you](https://docs.helm.sh/usi
 
 
 ```
-[localhost]: helm install galaxy
+rc-cola:galaxy-kubernetes-htcondor-azure rc$ helm install galaxy
+
+NAME:   nordic-prawn
+LAST DEPLOYED: Sun Jan 21 12:25:33 2018
+NAMESPACE: default
+STATUS: DEPLOYED
+
+RESOURCES:
+==> v1/Pod
+NAME                      READY  STATUS             RESTARTS  AGE
+galaxy-htcondor-executor  0/1    ContainerCreating  0         13s
+galaxy-htcondor           0/1    ContainerCreating  0         13s
+galaxy-init               0/1    ContainerCreating  0         13s
+galaxy-postgres           0/1    ContainerCreating  0         13s
+galaxy-proftpd            0/1    ContainerCreating  0         13s
+galaxy                    0/2    ContainerCreating  0         13s
+
+==> v1/ReplicationController
+NAME                          DESIRED  CURRENT  READY  AGE
+galaxy-htcondor-executor-big  1        1        0      13s
+
+==> v1beta1/Deployment
+NAME                 DESIRED  CURRENT  UP-TO-DATE  AVAILABLE  AGE
+nordic-prawn-galaxy  1        1        1           0          13s
+
+==> v1/Service
+NAME                 CLUSTER-IP    EXTERNAL-IP  PORT(S)   AGE
+galaxy-htcondor      10.0.234.39   <none>       9618/TCP  13s
+galaxy-postgres      10.0.118.128  <none>       5432/TCP  13s
+nordic-prawn-galaxy  10.0.41.61    <none>       80/TCP    13s
+
+
+NOTES:
+1. Get the application URL by running these commands:
+  export POD_NAME=$(kubectl get pods --namespace default -l "app=galaxy,release=nordic-prawn" -o jsonpath="{.items[0].metadata.name}")
+  echo "Visit http://127.0.0.1:8080 to use your application"
+  kubectl port-forward $POD_NAME 8080:80
+```
+###  
   - check if galaxy is running with
   ```
   [localhost]: kubectl port-forward galaxy 8080:80
