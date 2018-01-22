@@ -65,7 +65,7 @@ rc-cola$ az acs create --orchestrator-type kubernetes --resource-group rcAnswerA
 
 To manage our Kubernetes cluster, we need to [install kubectrl](https://kubernetes.io/docs/tasks/tools/install-kubectl/).
 ### Windows
-On Windows you can use the Chocolatey package manager and install with:
+On Windows you can use the Chocolatey package manager:
 ```
 $ choco install kubernetes-cli
 ```
