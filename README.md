@@ -126,3 +126,8 @@ ACS kubernetes cluster with one master and preferably two or more agent nodes
   ```
     [root@galaxy]:condor_restart
   ```
+ - to assign a static public IP to galaxy and galaxy-proftpd server run 
+ ```
+ [localhost]: kubectl expose pod galaxy --type=LoadBalancer
+ [localhost]: kubectl expose pod galaxy-proftpd --type=LoadBalancer
+ ```
