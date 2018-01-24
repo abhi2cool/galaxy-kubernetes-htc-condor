@@ -95,10 +95,10 @@ spec:
     - hostPort: 8081
       containerPort: 8080
     ports:
-    - hostPort: 9001
-      containerPort: 9001
+    - hostPort: 9618
+      containerPort: 9618
     ports:
-    - containerPort: 9618
+    - containerPort: 80
       protocol: TCP
     securityContext:
           privileged: true
