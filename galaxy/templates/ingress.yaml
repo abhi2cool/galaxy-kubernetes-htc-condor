@@ -20,15 +20,15 @@ spec:
     - host: {{ $host }}
       http:
         paths:
-          - path: /
+          - path: /galaxy
             backend:
               serviceName: {{ $serviceName1 }}
               servicePort: {{ $servicePort1 }}
-          - path: /
+          - path: /ftp
             backend:
               serviceName: {{ $serviceName2 }}
               servicePort: {{ $servicePort2 }}
-          - path: /
+          - path: /sftp
             backend:
               serviceName: {{ $serviceName3 }}
               servicePort: {{ $servicePort3 }}
