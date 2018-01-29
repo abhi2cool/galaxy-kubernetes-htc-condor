@@ -22,16 +22,16 @@ spec:
         paths:
           - path: /
             backend:
-              serviceName: {{ $serviceName }}
-              servicePort: {{ $servicePort }}
+              serviceName: {{ $serviceName1 }}
+              servicePort: {{ $servicePort1 }}
           - path: /
             backend:
-              serviceName: {{ $serviceName }}
-              servicePort: {{ $servicePort }}
+              serviceName: {{ $serviceName2 }}
+              servicePort: {{ $servicePort2 }}
           - path: /
             backend:
-              serviceName: {{ $serviceName }}
-              servicePort: {{ $servicePort }}
+              serviceName: {{ $serviceName3 }}
+              servicePort: {{ $servicePort3 }}
               
               
     {{- end -}}
