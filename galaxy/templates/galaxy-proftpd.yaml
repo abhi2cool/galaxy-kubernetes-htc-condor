@@ -3,7 +3,7 @@ kind: Pod
 metadata:
   name: galaxy-proftpd
   labels:
-   key: galaxy
+   app: galaxy-proftpd
 spec:
 
   volumes:
