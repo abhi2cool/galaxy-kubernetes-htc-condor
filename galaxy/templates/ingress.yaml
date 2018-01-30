@@ -17,21 +17,21 @@ metadata:
 spec:
   rules:
     {{- range $host := .Values.ingress.hosts }}
-    - host: {{ $host }}
+    - host:
       http:
         paths:
           - path: /galaxy
             backend:
-              serviceName: {{ $serviceName1 }}
-              servicePort: {{ $servicePort1 }}
+              serviceName: galaxy-web
+              servicePort: 80
           - path: /ftp
             backend:
-              serviceName: {{ $serviceName2 }}
-              servicePort: {{ $servicePort2 }}
+              serviceName: galaxy-proftpd
+              servicePort: 21
           - path: /sftp
             backend:
-              serviceName: {{ $serviceName3 }}
-              servicePort: {{ $servicePort3 }}
+              serviceName: galaxy-proftpd
+              servicePort: 22
               
               
     {{- end -}}
