@@ -3,7 +3,7 @@ kind: Pod
 metadata:
   name: galaxy
   labels:
-   app: galaxy
+   app: galaxy-web
 spec:
 
   volumes:
