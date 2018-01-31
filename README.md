@@ -4,7 +4,7 @@
 
 ### Pre-requisites
 
-AKS kubernetes cluster with one master and preferably two or more agent nodes
+AKS kubernetes cluster with preferably two or more agent nodes
 
 - The following links shall help with cluster creation and management
   - Deploy Kubernetes cluster for Linux containers
