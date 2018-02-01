@@ -1,6 +1,6 @@
 # galaxy-kubernetes-htc-condor
 
-## This is an attempt to replicate Galaxy docker swarm/compose implementation on kubernetes Deployed over ACS
+## This is an attempt to replicate Galaxy docker swarm/compose implementation on kubernetes Deployed over AKS
 
 ### Pre-requisites
 
