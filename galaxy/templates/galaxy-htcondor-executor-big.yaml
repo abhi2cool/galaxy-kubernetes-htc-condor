@@ -25,7 +25,7 @@ spec:
         - name: CONDOR_HOST
           value: galaxy-htcondor
         - name: CONDOR_CPUS
-          value: "2"
+          value: "1"
         - name: CONDOR_MEMORY
           value: "2048"
         securityContext:
