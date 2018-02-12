@@ -135,5 +135,15 @@ AKS kubernetes cluster with preferably two or more agent nodes
   ```
     [root@galaxy]:condor_restart
   ```
- 
- 
+ To assign a public static ip follow the steps in
+https://gist.github.com/tsaarni/624d5406e442f08fe11083169c059a68
+to create a public Ip
+Delete existing service with
+```
+kubectl delete services galaxy-web --force --grace-period=0
+```
+add newly generated IP to the value of LoadBalancerip in galaxy-webservice2
+and run
+```
+[localhost]:kubectl create -f galaxy-webservice2.yaml
+```
