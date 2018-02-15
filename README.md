@@ -143,7 +143,7 @@ Delete existing service with
 ```
 kubectl delete services galaxy-web --force --grace-period=0
 ```
-add newly generated IP to the value of LoadBalancerip in galaxy-webservice2
+add newly generated IP to the value of LoadBalancerip in galaxy-webservice2.yaml
 and run
 ```
 [localhost]:kubectl create -f galaxy-webservice2.yaml
