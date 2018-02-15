@@ -1,16 +1,14 @@
 # galaxy-kubernetes-htc-condor
 
-## This is an attempt to replicate Galaxy docker swarm/compose implementation on kubernetes Deployed over ACS
+## This is an attempt to replicate Galaxy docker swarm/compose implementation on kubernetes Deployed over AKS
 
 ### Pre-requisites
 
-ACS kubernetes cluster with one master and preferably two or more agent nodes
+AKS kubernetes cluster with preferably two or more agent nodes
 
 - The following links shall help with cluster creation and management
   - Deploy Kubernetes cluster for Linux containers
-    - https://docs.microsoft.com/en-us/azure/container-service/kubernetes/container-service-kubernetes-walkthrough
-  - Using the Kubernetes web UI with Azure Container Service
-    - https://docs.microsoft.com/en-us/azure/container-service/kubernetes/container-service-kubernetes-ui
+    - https://docs.microsoft.com/en-us/azure/aks/kubernetes-walkthrough
 
 - Get the node info with 
 
@@ -19,10 +17,10 @@ ACS kubernetes cluster with one master and preferably two or more agent nodes
 ```
 
 - Let the nodes be 
-  - Node master-0 
   - Node agent-0 
   - Node agent-1 
-  
+- add username and password to all node VMs through the azure portal(makes things easier)
+
 ### Steps
 
 - Designate one node for storage through kubectl label command 
@@ -30,10 +28,7 @@ ACS kubernetes cluster with one master and preferably two or more agent nodes
  [localhost]:kubectl label nodes <Node agent-0> type=store
  ```
 - ssh to the storage node
-  - To ssh to any node, first ssh to master node with the IP available on the azure portal (create user and add password to all nodes through the azure portal, makes things easier :P) then ssh to any desired node with
-    ```
-    [Node master-0]:-# ssh username@Node agent-0
-    ```
+  - https://gist.github.com/tsaarni/624d5406e442f08fe11083169c059a68
   
 - make directory export with
   ```
@@ -60,10 +55,10 @@ ACS kubernetes cluster with one master and preferably two or more agent nodes
     
 - start service with
   ```
+  [Node agent-0]: sudo systemctl stop nfs-kernel-server.service
   [Node agent-0]: sudo systemctl start nfs-kernel-server.service
-  ```
- 
-- ssh to all other nodes
+  ``` 
+- ssh to all other nodes (no need to generate IPs for all these nodes just ssh from the storage node)
   ```
   [Node any]:-# ssh username@Node agent-(all except 0)
   [Node agent-(all except 0)]: mkdir -p /export
@@ -86,6 +81,21 @@ ACS kubernetes cluster with one master and preferably two or more agent nodes
   [localhost]: kubectl port-forward galaxy 8080:80
   ```
   and then browse to localhost:8080
+  
+  if you get nginx 404 error do not panic and just restart galaxy server with
+  ```
+  [localhost]: kubectl delete pods galaxy --force --grace-period=0
+  [localhost]: kubectl delete services galaxy-web --force --grace-period=0
+  [localhost]: kubectl create -f galaxy-web.yaml
+  [localhost]: kubectl create -f galaxy-webservice.yaml
+  ```
+  Again
+  - check if galaxy is running with
+  ```
+  [localhost]: kubectl port-forward galaxy 8080:80
+  ```
+  and then browse to localhost:8080
+  
 
 #### Setup Htcondor
 
@@ -126,8 +136,15 @@ ACS kubernetes cluster with one master and preferably two or more agent nodes
   ```
     [root@galaxy]:condor_restart
   ```
- - to assign a static public IP to galaxy and galaxy-proftpd server run 
- ```
- [localhost]: kubectl expose pod galaxy --type=LoadBalancer
- [localhost]: kubectl expose pod galaxy-proftpd --type=LoadBalancer
- ```
+ To assign a public static ip follow the steps in
+https://gist.github.com/tsaarni/624d5406e442f08fe11083169c059a68
+to create a public Ip
+Delete existing service with
+```
+kubectl delete services galaxy-web --force --grace-period=0
+```
+add newly generated IP to the value of LoadBalancerip in galaxy-webservice2
+and run
+```
+[localhost]:kubectl create -f galaxy-webservice2.yaml
+```
